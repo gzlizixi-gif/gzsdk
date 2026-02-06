@@ -3,9 +3,9 @@ plugins {
 }
 
 group = "com.ioh"
-version = "1.0.0"
+version = "1.0.1"
 
-val aarFile = file("${rootProject.projectDir}/app/src/main/java/com/ioh/gzsdk/iohsdk-release-1.0.0.aar")
+val aarFile = file("${rootProject.projectDir}/app/src/main/java/com/ioh/gzsdk/iohsdk-release-1.0.1.aar")
 
 publishing {
     publications {

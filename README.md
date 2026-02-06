@@ -6,10 +6,40 @@ IOH SDK Android 库（AAR），支持通过 JitPack 远程依赖。
 
 ### 方式一：JitPack（推荐，已绑定 Git 即可用）
 
-1. **在 GitHub 上打 tag 发布**  
-   在仓库中创建 Release 或打 tag（如 `v1.0.0`），JitPack 会自动根据该 tag 构建并发布。
+#### 如何打 tag 或创建 Release
 
-2. **在其它项目的根目录 `settings.gradle` / `settings.gradle.kts` 中添加 JitPack 仓库：**
+任选其一即可，JitPack 会根据 tag 或 Release 的版本号构建。
+
+**方法 A：用 Git 命令行打 tag（推荐）**
+
+1. 在本地仓库根目录（`gzsdk`）确保代码已提交并推送到 GitHub：
+   ```bash
+   git add .
+   git commit -m "准备发布 1.0.0"
+   git push origin master
+   ```
+2. 打 tag 并推送：
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+   版本号可自定，如 `v1.0.0`、`1.0.0`。其他项目依赖时用这个版本号，例如：`com.github.你的用户名:gzsdk:1.0.0`（带 `v` 的 tag 在 JitPack 里一般用去掉 `v` 的版本号，如 `1.0.0`，若不行可试 `v1.0.0`）。
+
+**方法 B：在 GitHub 网页上打 tag / 创建 Release**
+
+1. 打开你的仓库页面，例如 `https://github.com/你的用户名/gzsdk`。
+2. 点击右侧 **Releases** → **Create a new release**。
+3. **Choose a tag**：输入新 tag 名称（如 `v1.0.0`），选择「Create new tag」，并选择要基于的分支（如 `master`）。
+4. **Release title**：可填 `v1.0.0` 或「gzsdk 1.0.0」。
+5. 点击 **Publish release**。
+
+发布后，JitPack 会自动检测到新 tag 并开始构建，可在 https://jitpack.io/#你的用户名/gzsdk 查看构建状态。
+
+---
+
+#### 其他项目如何引用
+
+1. **在其它项目的根目录 `settings.gradle` / `settings.gradle.kts` 中添加 JitPack 仓库：**
 
    ```gradle
    dependencyResolutionManagement {
@@ -20,7 +50,7 @@ IOH SDK Android 库（AAR），支持通过 JitPack 远程依赖。
    }
    ```
 
-3. **在 app 的 `build.gradle` / `build.gradle.kts` 中添加依赖：**
+2. **在 app 的 `build.gradle` / `build.gradle.kts` 中添加依赖：**
 
    ```gradle
    dependencies {
