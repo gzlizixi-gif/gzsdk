@@ -5,9 +5,7 @@ plugins {
 
 android {
     namespace = "com.ioh.gzsdk"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ioh.gzsdk"

@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "gzsdk"
 include(":app")
+include(":iohsdk")
  
