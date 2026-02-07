@@ -1,10 +1,60 @@
 # gzsdk
 
-IOH SDK Android 库（AAR），支持通过 JitPack 远程依赖。
+IOH SDK Android 库（AAR），支持远程 Maven 依赖（格式：`com.ioh.clouddrive:iohsdk:v1.0.1`）或 JitPack。
 
 ## 其他项目如何依赖
 
-### 方式一：JitPack（推荐，已绑定 Git 即可用）
+### 推荐：Maven 坐标 `com.ioh.clouddrive:iohsdk:v1.0.1`
+
+本库已按该坐标发布，其他项目需**先配置存放该库的 Maven 仓库地址**，再添加依赖。
+
+1. **在其它项目的 `settings.gradle` / `settings.gradle.kts` 中添加仓库**（二选一或都加）：
+   - 若发布到 **GitHub Packages**（仓库所属组织/用户为 `YOUR_ORG`）：
+     ```gradle
+     dependencyResolutionManagement {
+         repositories {
+             // ...
+             maven {
+                 url = uri("https://maven.pkg.github.com/YOUR_ORG/gzsdk")
+                 credentials {
+                     username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR") ?: ""
+                     password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN") ?: ""
+                 }
+             }
+         }
+     }
+     ```
+   - 若发布到**公司/自建 Nexus 等**，换成实际地址，例如：
+     ```gradle
+     maven { url = uri("https://your-nexus.company.com/repository/maven-releases/") }
+     ```
+
+2. **在 app 的 `build.gradle` / `build.gradle.kts` 中添加依赖：**
+   ```gradle
+   dependencies {
+       implementation("com.ioh.clouddrive:iohsdk:v1.0.1")
+   }
+   ```
+
+**本仓库如何发布到远程：** 在项目根目录配置 Maven 仓库与账号后执行：
+```bash
+# 方式 A：使用 gradle.properties（不要提交密码）
+# MAVEN_REPO_URL=https://maven.pkg.github.com/YOUR_ORG/gzsdk
+# MAVEN_REPO_USER=你的GitHub用户名
+# MAVEN_REPO_PASSWORD=GitHub Personal Access Token（需 repo 与 write:packages 权限）
+
+# 方式 B：使用环境变量
+# set MAVEN_REPO_URL=...
+# set MAVEN_REPO_USER=...
+# set MAVEN_REPO_PASSWORD=...
+
+.\gradlew :iohsdk:publishReleasePublicationToMavenRepository
+```
+发布到 GitHub Packages 时，`MAVEN_REPO_URL` 填 `https://maven.pkg.github.com/你的用户名或组织名/gzsdk`（gzsdk 可换成实际仓库名）。
+
+---
+
+### 方式二：JitPack（已绑定 Git 即可用）
 
 #### 如何打 tag 或创建 Release
 
@@ -66,12 +116,12 @@ IOH SDK Android 库（AAR），支持通过 JitPack 远程依赖。
 
 首次使用某版本时，JitPack 会拉取代码并构建，可能需要几分钟；之后会使用缓存。
 
-### 方式二：本地 Maven 测试
+### 方式三：本地 Maven 测试
 
 在本仓库根目录执行（需 Java 11+）：
 
 ```bash
-./gradlew :iohsdk:publishReleasePublicationToMavenLocal
+.\gradlew :iohsdk:publishReleasePublicationToMavenLocal
 ```
 
 其它项目在 `settings.gradle` 中增加本地 Maven 仓库后即可依赖：
@@ -81,15 +131,16 @@ repositories {
     mavenLocal()
 }
 dependencies {
-    implementation("com.ioh:iohsdk:1.0.0")
+    implementation("com.ioh.clouddrive:iohsdk:v1.0.1")
 }
 ```
 
 ## 发布新版本
 
-1. 若有新 AAR，替换 `app/src/main/java/com/ioh/gzsdk/iohsdk-release-1.0.0.aar`，或在 `iohsdk/build.gradle.kts` 中修改 `aarFile` 路径和 `version`。
+1. 若有新 AAR，替换对应路径下的 AAR 文件，并在 `iohsdk/build.gradle.kts` 中修改 `aarFile` 路径和 `version`（如 `v1.0.2`）。
 2. 提交并推送到 Git。
-3. 在 GitHub 上打新 tag（如 `v1.0.1`），其它项目即可使用 `com.github.你的用户名:gzsdk:1.0.1`。
+3. **Maven 坐标方式**：执行 `.\gradlew :iohsdk:publishReleasePublicationToMavenRepository` 发布到远程；其它项目使用 `com.ioh.clouddrive:iohsdk:v1.0.2`。
+4. **JitPack 方式**：在 GitHub 上打新 tag（如 `v1.0.2`），其它项目使用 `com.github.你的用户名:gzsdk:1.0.2`。
 
 ## 项目结构
 
