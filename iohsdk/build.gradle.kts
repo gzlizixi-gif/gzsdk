@@ -2,20 +2,23 @@ plugins {
     id("maven-publish")
 }
 
+// 依赖坐标：com.ioh.clouddrive:iohsdk:v1.0.1
 group = "com.ioh.clouddrive"
-version = "v1.0.2"
+version = "v1.0.1"
 
 val aarFile = file("${rootProject.projectDir}/app/src/main/java/com/ioh/gzsdk/iohsdk-release-1.0.1.aar")
 
+// GitHub 仓库，用于发布与 POM：在 gradle.properties 中配置 GITHUB_PACKAGES_REPO=你的用户名/gzsdk
+val githubRepo = project.findProperty("GITHUB_PACKAGES_REPO")?.toString() ?: System.getenv("GITHUB_PACKAGES_REPO") ?: "gzlizixi-gif/gzsdk"
+val (githubOwner, githubRepoName) = githubRepo.split("/").let { it[0] to it.getOrElse(1) { "gzsdk" } }
+
 publishing {
     repositories {
-        // 远程 Maven 仓库：在 gradle.properties 或环境变量中配置
-        // MAVEN_REPO_URL、MAVEN_REPO_USER、MAVEN_REPO_PASSWORD
         maven {
-            url = uri(project.findProperty("MAVEN_REPO_URL")?.toString() ?: System.getenv("MAVEN_REPO_URL") ?: "https://maven.pkg.github.com/YOUR_ORG/gzsdk")
+            url = uri("https://maven.pkg.github.com/$githubOwner/$githubRepoName")
             credentials {
-                username = project.findProperty("MAVEN_REPO_USER")?.toString() ?: System.getenv("MAVEN_REPO_USER") ?: ""
-                password = project.findProperty("MAVEN_REPO_PASSWORD")?.toString() ?: System.getenv("MAVEN_REPO_PASSWORD") ?: System.getenv("GITHUB_TOKEN") ?: ""
+                username = project.findProperty("GPR_USER")?.toString() ?: System.getenv("GPR_USER") ?: System.getenv("GITHUB_ACTOR") ?: ""
+                password = project.findProperty("GPR_TOKEN")?.toString() ?: System.getenv("GPR_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: ""
             }
         }
     }
@@ -30,7 +33,7 @@ publishing {
             pom {
                 name.set("iohsdk")
                 description.set("IOH SDK Android library")
-                url.set("https://github.com/YOUR_USERNAME/gzsdk")
+                url.set("https://github.com/$githubOwner/$githubRepoName")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")

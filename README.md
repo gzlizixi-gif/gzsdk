@@ -4,30 +4,54 @@ IOH SDK Android 库（AAR），支持远程 Maven 依赖（格式：`com.ioh.clo
 
 ## 其他项目如何依赖
 
-### 推荐：Maven 坐标 `com.ioh.clouddrive:iohsdk:v1.0.1`
+### 推荐：依赖包名 `com.ioh.clouddrive:iohsdk:v1.0.1`（发布在 Git / GitHub Packages）
 
-本库已按该坐标发布，其他项目需**先配置存放该库的 Maven 仓库地址**，再添加依赖。
+#### 一、本仓库：发布到 GitHub
 
-1. **在其它项目的 `settings.gradle` / `settings.gradle.kts` 中添加仓库**（二选一或都加）：
-   - 若发布到 **GitHub Packages**（仓库所属组织/用户为 `YOUR_ORG`）：
-     ```gradle
-     dependencyResolutionManagement {
-         repositories {
-             // ...
-             maven {
-                 url = uri("https://maven.pkg.github.com/YOUR_ORG/gzsdk")
-                 credentials {
-                     username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR") ?: ""
-                     password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN") ?: ""
-                 }
-             }
-         }
-     }
-     ```
-   - 若发布到**公司/自建 Nexus 等**，换成实际地址，例如：
-     ```gradle
-     maven { url = uri("https://your-nexus.company.com/repository/maven-releases/") }
-     ```
+1. **在 GitHub 创建 Personal Access Token**  
+   打开 GitHub → Settings → Developer settings → Personal access tokens → Generate new token，勾选 **write:packages** 和 **read:packages**（若从私有仓库发布，还需 **repo**）。
+
+2. **在本地配置 Token**  
+   打开项目根目录的 `gradle.properties`，在 `GPR_TOKEN=` 处填写刚创建的 Token（`GITHUB_PACKAGES_REPO` 与 `GPR_USER` 已配置为 `gzlizixi-gif`）：
+   ```properties
+   GPR_TOKEN=刚创建的Token
+   ```
+   （不要提交 `GPR_TOKEN`，可把 `gradle.properties` 里这三行加入 `.gitignore`，或使用环境变量 `GPR_TOKEN`。）
+
+3. **执行发布**
+   ```bash
+   .\gradlew :iohsdk:publishReleasePublicationToMavenRepository
+   ```
+   成功后，包会出现在 GitHub 仓库的 **Packages** 里，其他项目即可按下面方式依赖。
+
+#### 二、其他项目：使用依赖
+
+1. **在其它项目的 `settings.gradle` 或 `settings.gradle.kts` 里添加 GitHub Packages 仓库**（已按用户 `gzlizixi-gif`、仓库 `gzsdk` 配置）：
+   ```kotlin
+   dependencyResolutionManagement {
+       repositories {
+           google()
+           mavenCentral()
+           maven {
+               url = uri("https://maven.pkg.github.com/gzlizixi-gif/gzsdk")
+               credentials {
+                   username = project.findProperty("gpr.user")?.toString() ?: System.getenv("GPR_USER") ?: ""
+                   password = project.findProperty("gpr.key")?.toString() ?: System.getenv("GPR_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: ""
+               }
+           }
+       }
+   }
+   ```
+   若用 Groovy，写法为：
+   ```groovy
+   maven {
+       url "https://maven.pkg.github.com/gzlizixi-gif/gzsdk"
+       credentials {
+           username = project.findProperty("gpr.user") ?: System.getenv("GPR_USER") ?: ""
+           password = project.findProperty("gpr.key") ?: System.getenv("GPR_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: ""
+       }
+   }
+   ```
 
 2. **在 app 的 `build.gradle` / `build.gradle.kts` 中添加依赖：**
    ```gradle
@@ -36,21 +60,7 @@ IOH SDK Android 库（AAR），支持远程 Maven 依赖（格式：`com.ioh.clo
    }
    ```
 
-**本仓库如何发布到远程：** 在项目根目录配置 Maven 仓库与账号后执行：
-```bash
-# 方式 A：使用 gradle.properties（不要提交密码）
-# MAVEN_REPO_URL=https://maven.pkg.github.com/YOUR_ORG/gzsdk
-# MAVEN_REPO_USER=你的GitHub用户名
-# MAVEN_REPO_PASSWORD=GitHub Personal Access Token（需 repo 与 write:packages 权限）
-
-# 方式 B：使用环境变量
-# set MAVEN_REPO_URL=...
-# set MAVEN_REPO_USER=...
-# set MAVEN_REPO_PASSWORD=...
-
-.\gradlew :iohsdk:publishReleasePublicationToMavenRepository
-```
-发布到 GitHub Packages 时，`MAVEN_REPO_URL` 填 `https://maven.pkg.github.com/你的用户名或组织名/gzsdk`（gzsdk 可换成实际仓库名）。
+其他项目拉取包时也需要有权限（同一 GitHub 账号或已授权）；私有仓库时需在拉取方也配置 `gpr.user` / `gpr.key` 或 `GPR_USER` / `GPR_TOKEN`。
 
 ---
 
